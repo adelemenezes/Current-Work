@@ -1,1 +1,336 @@
+/******************************************************************************
 
+To Remember for Video: . A brief walkthrough of the code.
+a. Explain the code as if you were in a code review with a supervisor. Just reading the code will not receive
+points.
+2. A demonstration of the application.
+a. Show the application from the user’s perspective and highlight any bugs you intend to resolve.
+3. An explanation of anything that isn’t currently working and how you plan to address that issue.
+4. What did you find most difficult about the assignment and how did you work through that?
+
+
+
+goals:
+- use interpolation for adding a new feature
+
+/* declare two list
+            list one:
+            - type: product
+            - name: inventory
+
+            list two:
+            - type: product
+            - name: shopping cart
+
+            product class:
+            - name
+            - quantity
+                - should the id be updated for the quantity. im confused
+                - there could be a list of the vectors holding the id's available
+                - when printing you could show 
+                id  name    quantity
+            ******************************
+                0-3 socks   x4
+                4   shoe    x1
+                5-9 laces   x5
+            - id
+            - price
+            - rating
+
+*******************************************************************************/
+using System;
+using System.Collections.Generic; // for list
+
+namespace eCommerce
+{
+
+    internal class Program
+    {
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Welcome to ILoveToShop!");
+            
+            eCommerce myCommerce = new eCommerce();
+            char choice;
+            char subChoice;
+            MainMenu(); // always show menu before the first round
+            do
+            {
+                Console.WriteLine("[MAIN MENU] What would you like to do?");
+                Console.Write("> "); // this does not add a new line.
+                string input = Console.ReadLine() ?? string.Empty;
+
+                input = input.ToUpper();
+                choice = input[0];
+
+                switch (choice)
+                {
+                    case 'I':
+                        // Access inventory - this needs to segue to the inventory menu
+                        InventoryMenu();
+                        do{
+                            Console.WriteLine("[INVENTORY] What would you like to do in the inventory?");
+                            Console.Write(">> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            input = input.ToUpper();
+                            subChoice = input[0];
+
+                            switch(subChoice){
+                                case 'C': // create
+                                    Console.WriteLine("You chose C");
+                                    if (myCommerce.CreateItem())
+                                    break;
+                                case 'R': // list
+                                    Console.WriteLine("You chose R");
+                                    break;
+                                case 'U':
+                                    Console.WriteLine("You chose U");
+                                    break;
+                                case 'D':
+                                    Console.WriteLine("You chose D");
+                                    break;
+                                case 'A':
+                                    Console.WriteLine("You chose A");
+                                    break;
+                                case 'M':
+                                    Console.WriteLine("You have exited the inventory menu. Returning to main menu...");
+                                    break;
+                                case 'Q':
+                                    Console.WriteLine("You chose Q");
+                                    choice = 'Q';
+                                    break;
+                                default:
+                                    Console.WriteLine("Error: Unknown Command");
+                                    break;
+                            }
+                        } while (subChoice != 'Q' && subChoice != 'M');
+                        break;
+
+                    case 'S':
+                        // Access shopping cart - this needs to segue to the shopping cart menu
+                        CartMenu();
+                        do{
+                            Console.WriteLine("[CART] What would you like to do in the shopping cart?");
+                            Console.Write(">> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            input = input.ToUpper();
+                            subChoice = input[0];
+
+                            switch(subChoice){
+                                case 'A':
+                                    Console.WriteLine("You chose A");
+                                    break;
+                                case 'R':
+                                    Console.WriteLine("You chose R");
+                                    break;
+                                case 'U':
+                                    Console.WriteLine("You chose U");
+                                    break;
+                                case 'D':
+                                    Console.WriteLine("You chose D");
+                                    break;
+                                case 'M':
+                                    Console.WriteLine("You have exited the inventory menu. Returning to main menu...");
+                                    break;
+                                case 'Q':
+                                    choice = 'Q';
+                                    break;
+                                default:
+                                    Console.WriteLine("Error: Unknown Command");
+                                    break;
+                            }
+
+                        } while (subChoice != 'Q' && subChoice != 'M');
+                        break;
+
+                    case 'Q': // Access quit/checkout
+                        Console.WriteLine("You chose Q");
+                        break;
+
+                    case 'M': // See menu again
+                        Console.WriteLine("You chose M");
+                        MainMenu();
+                        break;
+
+                    default:
+                        Console.WriteLine("Error: Unknown Command");
+                        break;
+                }
+            } while (choice != 'Q');
+        }
+
+        static void MainMenu()
+        {
+            Console.WriteLine("\t------MAIN MENU------");
+            Console.WriteLine("\tEnter I: Access the inventory.");
+            Console.WriteLine("\tEnter S: Access your shopping cart.");
+            Console.WriteLine("\tEnter Q: Quit and check out.");
+            Console.WriteLine("\tEnter M: See this menu again.");
+        }
+
+        static void InventoryMenu()
+        {
+            Console.WriteLine("\t------INVENTORY MENU------");
+            Console.WriteLine("\tEnter C: Create new inventory item."); // Check if pre-existing. If pre-existing, ask if you want to update quantity
+            Console.WriteLine("\tEnter R: Read all inventory items.");
+            Console.WriteLine("\tEnter U: Update an inventory item."); // Will update quantity as well
+            Console.WriteLine("\tEnter D: Delete an inventory item.");
+            Console.WriteLine("\tEnter A: Add item from inventory to cart.");
+            Console.WriteLine("\tEnter M: Return to Main Menu.");
+            Console.WriteLine("\tEnter Q: Quit and Check Out.");
+        }
+
+        static void CartMenu()
+        {
+            Console.WriteLine("\t------CART MENU------");
+            Console.WriteLine("\tEnter A: Add item from inventory to cart.");
+            Console.WriteLine("\tEnter R: Read all items in the cart.");
+            Console.WriteLine("\tEnter U: Update an item amount in the cart.");
+            Console.WriteLine("\tEnter D: Delete an item from Cart.");
+            Console.WriteLine("\tEnter M: Return to Main Menu.");
+            Console.WriteLine("\tEnter Q: Quit and Check Out.");
+        }
+
+    }
+    
+    
+    internal class eCommerce{
+        List<Product> Inventory {get; set;} // should i set this to private 
+        List<Product> Cart {get; set;} 
+        int lastKey = 1;
+        
+        
+        public eCommerce(){ // constructor
+            Inventory = new List<Product>(); // two lists
+            Cart = new List<Product>();
+        }
+        
+        bool CreateItem(){
+            string tempname;
+            int tempquantity;
+            double tempprice;
+            float temprating;
+            
+            Console.WriteLine("Please enter the following: ");
+            Console.WriteLine("Name: ");
+            tempname = Console.ReadLine() ?? string.Empty;
+            Console.WriteLine("Quantity: ");
+            tempquantity = Console.ReadLine() ?? string.Empty;
+            Console.WriteLine("Price: ");
+            tempprice = Console.ReadLine() ?? string.Empty;
+            Console.WriteLine("Rating: ");
+            temprating = Console.ReadLine() ?? string.Empty;
+            
+            Product tempProduct = new Product(tempname, tempquantity, tempprice, temprating, lastKey);
+            Inventory.Add(tempProduct);
+            LastKey++;
+            
+            return true;
+        }
+        
+        void Read(char c){ // to be used for both inventory and cart read
+            if (c == 'i'){
+                foreach (Product p in Inventory){
+                    Console.WriteLine(p);
+                } 
+            }
+            
+            if (c == 'c'){
+                foreach (Product p in Cart){
+                    Console.WriteLine(p);
+                } 
+            }
+            
+        }
+        
+        void UpdateItem(int id){
+            foreach (Product p in l){
+                if (l.id == id){
+                    // menu
+                    Console.WriteLine("\t\tEnter N: Update name."); 
+                    Console.WriteLine("\t\tEnter Q: Update quantity.");
+                    Console.WriteLine("\t\tEnter P: Update price.");
+                    Console.WriteLine("\t\tEnter R: Update rating.");
+                    Console.WriteLine("\t\tEnter A: Update all.");
+                    
+                    Console.Write("> ");
+                    char temp;
+                    temp = Console.ReadLine() ?? string.Empty;
+                    temp = temp.ToUpper();
+                    switch (temp){
+                        case 'N':
+                            Console.WriteLine("New name: \n>> ");
+                            string tempn = Console.ReadLine();
+                            break;
+                        case 'Q':
+                            Console.WriteLine("New quantity: \n>> ");
+                            string tempq = Console.ReadLine();
+                            break;
+                        case 'P':
+                            Console.WriteLine("New price: \n>> ");
+                            string tempp = Console.ReadLine();
+                            break;
+                        case 'R':
+                            Console.WriteLine("New rating: \n>> ")
+                            string tempr = Console.ReadLine();
+                            break;
+                        case 'A':
+                            Console.WriteLine("New name: \n>> ");
+                            string tempn = Console.ReadLine();
+                            Console.WriteLine("New quantity: \n>> ");
+                            string tempq = Console.ReadLine();
+                            Console.WriteLine("New price: \n>> ");
+                            string tempp = Console.ReadLine();
+                            Console.WriteLine("New rating: \n>> ")
+                            break;
+                        default:
+                            Console.WriteLine("Sorry! That choice is not an option");
+                            break;
+                    }
+                }
+            }   
+        }
+        
+        void UpdateItemAmount(int id){
+            
+        }
+        
+        void RemoveItem(int id){
+            
+        }
+        
+        void RemoveFromCart(int id){
+            
+        }
+        
+        void AddToCart(int id){
+            
+        }
+        
+        void CheckOut(){
+            
+        }
+        
+    }
+    
+    
+    public class Product {
+        public string Name { get; set; }
+        public int Quantity { get; set; }
+        public long ID { get; set; }
+        public double Price { get; set; }
+        public float Rating { get; set; }
+        
+        public Product(string n, int q, double p, float r, int key){
+            Name = n;
+            Quantity = q;
+            Price = q;
+            Rating = r;
+            ID = key;
+        }
+        
+        // some sort of cout overload
+    }
+
+}
