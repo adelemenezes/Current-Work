@@ -79,7 +79,6 @@ namespace eCommerce
                             switch(subChoice){
                                 case 'C': // create
                                     Console.WriteLine("You chose C");
-                                    if (myCommerce.CreateItem())
                                     break;
                                 case 'R': // list
                                     Console.WriteLine("You chose R");
@@ -196,9 +195,9 @@ namespace eCommerce
     
     
     internal class eCommerce{
-        List<Product> Inventory {get; set;} // should i set this to private 
-        List<Product> Cart {get; set;} 
-        int lastKey = 1;
+        private List<Product> Inventory {get; set;} // should i set this to private 
+        private List<Product> Cart {get; set;} 
+        public int LastKey = 1;
         
         
         public eCommerce(){ // constructor
@@ -207,22 +206,39 @@ namespace eCommerce
         }
         
         bool CreateItem(){
+            string input;
             string tempname;
             int tempquantity;
             double tempprice;
             float temprating;
             
             Console.WriteLine("Please enter the following: ");
+            // name
             Console.WriteLine("Name: ");
             tempname = Console.ReadLine() ?? string.Empty;
+            // quantity
             Console.WriteLine("Quantity: ");
-            tempquantity = Console.ReadLine() ?? string.Empty;
-            Console.WriteLine("Price: ");
-            tempprice = Console.ReadLine() ?? string.Empty;
+            input = Console.ReadLine() ?? string.Empty; // input now has quantity.
+            if(!int.TryParse(input, out tempquantity)){
+                Console.WriteLine("Invalid quantity. Default quantity of 1 will be set.");
+                tempquantity = 1;
+            }
+            // price
+            Console.WriteLine("Price: $");
+            input = Console.ReadLine() ?? string.Empty;
+            if (!double.TryParse(input, out tempprice)){
+                Console.WriteLine("Invalid price. Default price of $0.00 will be set.");
+                tempprice = 0.00;
+            }
+            // rating
             Console.WriteLine("Rating: ");
-            temprating = Console.ReadLine() ?? string.Empty;
+            input = Console.ReadLine() ?? string.Empty;
+            if (!float.TryParse(input, out temprating)){
+                Console.WriteLine("Invalid rating. Default rating of 0 stars will be set");
+                temprating = 0;
+            }
             
-            Product tempProduct = new Product(tempname, tempquantity, tempprice, temprating, lastKey);
+            Product tempProduct = new Product(tempname, tempquantity, tempprice, temprating, LastKey);
             Inventory.Add(tempProduct);
             LastKey++;
             
@@ -245,8 +261,16 @@ namespace eCommerce
         }
         
         void UpdateItem(int id){
-            foreach (Product p in l){
-                if (l.id == id){
+            foreach (Product p in Inventory){
+                if (p.ID == id){
+                    // variables
+                    char temp;
+                    string input;
+                    string tempn; // name
+                    int tempq; // quanity
+                    double tempp; // price
+                    float tempr; // rating
+
                     // menu
                     Console.WriteLine("\t\tEnter N: Update name."); 
                     Console.WriteLine("\t\tEnter Q: Update quantity.");
@@ -254,35 +278,72 @@ namespace eCommerce
                     Console.WriteLine("\t\tEnter R: Update rating.");
                     Console.WriteLine("\t\tEnter A: Update all.");
                     
-                    Console.Write("> ");
-                    char temp;
-                    temp = Console.ReadLine() ?? string.Empty;
-                    temp = temp.ToUpper();
+                    Console.Write("\t> ");
+                    input = Console.ReadLine() ?? string.Empty;
+                    input = input.ToUpper();
+                    temp = input[0];
                     switch (temp){
                         case 'N':
-                            Console.WriteLine("New name: \n>> ");
-                            string tempn = Console.ReadLine();
+                            Console.WriteLine("New name: \n\t>> ");
+                            tempn = Console.ReadLine() ?? string.Empty;
                             break;
                         case 'Q':
-                            Console.WriteLine("New quantity: \n>> ");
-                            string tempq = Console.ReadLine();
+                            Console.WriteLine("New quantity: \n\t>> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            if (!int.TryParse(input, out tempq)){
+                                Console.WriteLine("Invalid quantity. Quantity will remain the same.");
+                                tempq = p.Quantity;
+                            }
                             break;
                         case 'P':
-                            Console.WriteLine("New price: \n>> ");
-                            string tempp = Console.ReadLine();
+                            Console.WriteLine("New price: \n\t>> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            if (!double.TryParse(input, out tempp)){
+                                Console.WriteLine("Invalid price. Price will remain the same.");
+                                tempp = p.Price;
+                            }
                             break;
                         case 'R':
-                            Console.WriteLine("New rating: \n>> ")
-                            string tempr = Console.ReadLine();
+                            Console.WriteLine("New rating: \n\t>> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            if (!float.TryParse(input, out tempr)){
+                                Console.WriteLine("Invalid rating. Rating will remain the same. ");
+                                tempr = p.Rating;
+                            }
+                            if (tempr < 0 || tempr > 5){
+                                Console.WriteLine("Invalid rating. Rating will remain the same. ");
+                                tempr = p.Rating;
+                            }
                             break;
                         case 'A':
-                            Console.WriteLine("New name: \n>> ");
-                            string tempn = Console.ReadLine();
-                            Console.WriteLine("New quantity: \n>> ");
-                            string tempq = Console.ReadLine();
-                            Console.WriteLine("New price: \n>> ");
-                            string tempp = Console.ReadLine();
-                            Console.WriteLine("New rating: \n>> ")
+                            // name
+                            Console.WriteLine("New name: \n\t>> ");
+                            tempn = Console.ReadLine() ?? string.Empty;
+                            // quantity
+                            Console.WriteLine("New quantity: \n\t>> ");
+                            input = Console.ReadLine() ?? string.Empty;q
+                            if (!int.TryParse(input, out tempq)){
+                                Console.WriteLine("Invalid quantity. Quantity will remain the same.");
+                                tempq = p.Quantity;
+                            }
+                            // price
+                            Console.WriteLine("New price: \n\t>> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            if (!double.TryParse(input, out tempp)){
+                                Console.WriteLine("Invalid price. Price will remain the same.");
+                                tempp = p.Price;
+                            }
+                            // rating
+                            Console.WriteLine("New rating: \n\t>> ");
+                            input = Console.ReadLine() ?? string.Empty;
+                            if (!float.TryParse(input, out tempr)){
+                                Console.WriteLine("Invalid rating. Rating will remain the same. ");
+                                tempr = p.Rating;
+                            }
+                            if (tempr < 0 || tempr > 5){
+                                Console.WriteLine("Invalid rating. Rating will remain the same. ");
+                                tempr = p.Rating;
+                            }
                             break;
                         default:
                             Console.WriteLine("Sorry! That choice is not an option");
@@ -291,7 +352,7 @@ namespace eCommerce
                 }
             }   
         }
-        
+
         void UpdateItemAmount(int id){
             
         }
